@@ -14,7 +14,7 @@ mp4_openh264 = ["dep:mp4", "dep:openh264"]
 mp4_ffmpeg_cli = ["dep:tempdir"]
 
 [dependencies]
-bevy = { version = "0.16.0-rc.5", default-features = false, features = [
+bevy = { version = "0.16.0", default-features = false, features = [
     "bevy_image",
     "bevy_render",
     "bevy_core_pipeline",
@@ -33,7 +33,7 @@ openh264 = { version = "0.6.2", optional = true }
 tempdir = { version = "0.3.7", optional = true }
 
 [dev-dependencies]
-bevy = "0.16.0-rc.5"
+bevy = "0.16.0"
 
 [package.metadata.docs.rs]
 all-features = true
