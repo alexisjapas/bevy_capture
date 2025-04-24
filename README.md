@@ -1,5 +1,7 @@
 # bevy_capture
 
+[![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)](#license)
+[![Build Status](https://github.com/jannik4/bevy_capture/workflows/CI/badge.svg)](https://github.com/jannik4/bevy_capture/actions)
 [![crates.io](https://img.shields.io/crates/v/bevy_capture.svg)](https://crates.io/crates/bevy_capture)
 [![docs.rs](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.rs/bevy_capture)
 
