@@ -85,8 +85,9 @@ fn update(
                 .with_repeat(gif::Repeat::Infinite),
             frames::FramesEncoder::new("captures/simple/frames"),
             mp4_ffmpeg_cli::Mp4FfmpegCliEncoder::new("captures/simple/simple_ffmpeg.mp4")
-                .unwrap()
-                .with_framerate(10),
+                .expect("Failed to create MP4 encoder")
+                .with_framerate(30)
+                .with_crf(18)
             mp4_openh264::Mp4Openh264Encoder::new(
                 fs::File::create("captures/simple/simple_openh264.mp4").unwrap(),
                 512,
