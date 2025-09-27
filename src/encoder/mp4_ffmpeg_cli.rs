@@ -20,6 +20,7 @@ pub struct Mp4FfmpegCliEncoder {
     /// Video configuration
     framerate: u32,
     crf: u32,
+    preset: Option<String>,
 
     /// Hardware encoder preference (nvenc, vaapi, etc.)
     hardware_encoder: Option<String>,
@@ -36,6 +37,7 @@ impl Mp4FfmpegCliEncoder {
             path: path.into(),
             framerate: 60,
             crf: 23,
+            preset: Some("fast".to_string()),
             hardware_encoder: None,
             resolution: None,
         })
@@ -50,6 +52,12 @@ impl Mp4FfmpegCliEncoder {
     /// Sets the CRF (Constant Rate Factor) of the video.
     pub fn with_crf(mut self, crf: u32) -> Self {
         self.crf = crf;
+        self
+    }
+    
+    /// Sets the preset of the video.
+    pub fn with_preset(mut self, preset: impl Into<String>) -> Self {
+        self.preset = Some(preset.into());
         self
     }
 
@@ -106,6 +114,9 @@ impl Mp4FfmpegCliEncoder {
             Some((w, h)) => (w, h),
             None => (image.width(), image.height()),
         };
+        
+        // Preset
+        let preset = self.preset.as_deref().unwrap();
 
         // Choose encoder
         let encoder = self
@@ -142,11 +153,11 @@ impl Mp4FfmpegCliEncoder {
         // Quality settings - adjust based on encoder type
         match encoder.as_str() {
             "h264_nvenc" => {
-                command.args(["-preset", "fast"]);
+                command.args(["-preset", preset]);
                 command.args(["-cq", &self.crf.to_string()]);
             }
             "h264_qsv" => {
-                command.args(["-preset", "fast"]);
+                command.args(["-preset", preset]);
                 command.args(["-global_quality", &self.crf.to_string()]);
             }
             "h264_vaapi" => {
@@ -158,7 +169,7 @@ impl Mp4FfmpegCliEncoder {
             }
             _ => {
                 // Default libx264 settings
-                command.args(["-preset", "fast"]);
+                command.args(["-preset", preset]);
                 command.args(["-crf", &self.crf.to_string()]);
             }
         }

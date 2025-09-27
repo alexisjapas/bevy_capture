@@ -88,6 +88,7 @@ fn update(
                 .expect("Failed to create MP4 encoder")
                 .with_framerate(30)
                 .with_crf(18)
+                .with_preset("p7".to_string())
             mp4_openh264::Mp4Openh264Encoder::new(
                 fs::File::create("captures/simple/simple_openh264.mp4").unwrap(),
                 512,
