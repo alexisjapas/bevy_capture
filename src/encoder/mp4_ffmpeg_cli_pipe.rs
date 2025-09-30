@@ -54,7 +54,7 @@ impl Mp4FfmpegCliPipeEncoder {
         self.crf = crf;
         self
     }
-    
+
     /// Sets the preset of the video.
     pub fn with_preset(mut self, preset: impl Into<String>) -> Self {
         self.preset = Some(preset.into());
@@ -114,7 +114,7 @@ impl Mp4FfmpegCliPipeEncoder {
             Some((w, h)) => (w, h),
             None => (image.width(), image.height()),
         };
-        
+
         // Preset
         let preset = self.preset.as_deref().unwrap();
 
