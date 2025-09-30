@@ -6,7 +6,7 @@ use bevy::{
     winit::WinitPlugin,
 };
 use bevy_capture::{
-    encoder::{frames, gif, mp4_ffmpeg_cli, mp4_openh264},
+    encoder::{frames, gif, mp4_ffmpeg_cli, mp4_openh264, mp4_ffmpeg_cli_pipe},
     CameraTargetHeadless, Capture, CaptureBundle,
 };
 use std::{f32::consts::TAU, fs, time::Duration};
@@ -85,6 +85,9 @@ fn update(
                 .with_repeat(gif::Repeat::Infinite),
             frames::FramesEncoder::new("captures/simple/frames"),
             mp4_ffmpeg_cli::Mp4FfmpegCliEncoder::new("captures/simple/simple_ffmpeg.mp4")
+                            .unwrap()
+                            .with_framerate(10),
+            mp4_ffmpeg_cli_pipe::Mp4FfmpegCliPipeEncoder::new("captures/simple/simple_ffmpeg_pipe.mp4")
                 .expect("Failed to create MP4 encoder")
                 .with_framerate(30)
                 .with_crf(18)
