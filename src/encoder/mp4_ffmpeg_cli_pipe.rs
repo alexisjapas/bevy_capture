@@ -6,6 +6,7 @@ use std::{
     io::Write,
     path::PathBuf,
     process::{Child, Command, Stdio},
+    time::Duration,
 };
 
 /// An encoder that streams frames directly to ffmpeg for real-time MP4 encoding.
@@ -27,6 +28,9 @@ pub struct Mp4FfmpegCliPipeEncoder {
 
     /// Video resolution (width, height)
     resolution: Option<(u32, u32)>,
+
+    /// Flag to track if finish() was called
+    finished: bool,
 }
 
 impl Mp4FfmpegCliPipeEncoder {
@@ -40,6 +44,7 @@ impl Mp4FfmpegCliPipeEncoder {
             preset: Some("fast".to_string()),
             hardware_encoder: None,
             resolution: None,
+            finished: false,
         })
     }
 
@@ -180,8 +185,8 @@ impl Mp4FfmpegCliPipeEncoder {
         // Set up pipes
         command
             .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
+            .stdout(Stdio::null()) // Ignore stdout
+            .stderr(Stdio::piped()); // Capture stderr for error messages
 
         let child = command.spawn()?;
         self.process = Some(child);
@@ -196,6 +201,58 @@ impl Mp4FfmpegCliPipeEncoder {
 
         // ffmpeg expects raw RGBA bytes
         Ok(image_data.clone())
+    }
+
+    /// Logs ffmpeg error details from stderr
+    fn log_ffmpeg_error(&self, process: &mut Child, status: std::process::ExitStatus) {
+        if let Some(mut stderr) = process.stderr.take() {
+            use std::io::Read;
+            let mut error_msg = String::new();
+            if stderr.read_to_string(&mut error_msg).is_ok() {
+                bevy::log::error!("FFmpeg failed with status {}: {}", status, error_msg);
+            } else {
+                bevy::log::error!("FFmpeg failed with status: {}", status);
+            }
+        } else {
+            bevy::log::error!("FFmpeg failed with status: {}", status);
+        }
+    }
+
+    /// Internal cleanup method shared by finish() and Drop
+    fn cleanup(&mut self, graceful: bool) {
+        if let Some(mut process) = self.process.take() {
+            // Close stdin to signal end of input
+            drop(process.stdin.take());
+
+            if graceful {
+                // Graceful shutdown with timeout
+                match wait_timeout::ChildExt::wait_timeout(&mut process, Duration::from_secs(10)) {
+                    Ok(Some(status)) => {
+                        // Process finished within timeout
+                        if status.success() {
+                            bevy::log::info!("Video encoding completed successfully: {:?}", self.path);
+                        } else {
+                            self.log_ffmpeg_error(&mut process, status);
+                        }
+                    }
+                    Ok(None) => {
+                        // Timeout exceeded - process still running
+                        bevy::log::warn!("FFmpeg encoding timeout after 10s, forcing termination");
+                        let _ = process.kill();
+                        let _ = process.wait();
+                    }
+                    Err(e) => {
+                        // System error while waiting
+                        bevy::log::error!("Failed to wait for FFmpeg process: {:?}", e);
+                        let _ = process.kill(); // Force kill for safety
+                    }
+                }
+            } else {
+                // Forceful shutdown (from Drop)
+                let _ = process.kill();
+                let _ = process.wait();
+            }
+        }
     }
 }
 
@@ -223,54 +280,19 @@ impl Encoder for Mp4FfmpegCliPipeEncoder {
     }
 
     fn finish(mut self: Box<Self>) {
-        if let Some(mut process) = self.process.take() {
-            // Close stdin to signal end of input
-            drop(process.stdin.take());
-
-            // Wait for process to complete
-            match process.wait() {
-                Ok(status) => {
-                    if status.success() {
-                        bevy::log::info!("Video encoding completed successfully: {:?}", self.path);
-                    } else {
-                        // Try to capture stderr for error details
-                        if let Some(mut stderr) = process.stderr.take() {
-                            use std::io::Read;
-                            let mut error_msg = String::new();
-                            if stderr.read_to_string(&mut error_msg).is_ok() {
-                                bevy::log::error!(
-                                    "FFmpeg failed with status {}: {}",
-                                    status,
-                                    error_msg
-                                );
-                            } else {
-                                bevy::log::error!("FFmpeg failed with status: {}", status);
-                            }
-                        } else {
-                            bevy::log::error!("FFmpeg failed with status: {}", status);
-                        }
-                    }
-                }
-                Err(error) => {
-                    bevy::log::error!("Failed to wait for FFmpeg process: {:?}", error);
-                }
-            }
-        }
+        self.finished = true;
+        self.cleanup(true);
     }
 }
 
 impl Drop for Mp4FfmpegCliPipeEncoder {
     fn drop(&mut self) {
-        if let Some(mut process) = self.process.take() {
-            // Attempt graceful shutdown
-            drop(process.stdin.take());
-
-            // Give it a moment to finish
-            std::thread::sleep(std::time::Duration::from_millis(100));
-
-            // Force kill if still running
-            let _ = process.kill();
-            let _ = process.wait();
+        // Only cleanup if finish() wasn't called
+        if !self.finished && self.process.is_some() {
+            bevy::log::warn!(
+                "Mp4FfmpegCliPipeEncoder dropped without calling finish(), forcing cleanup"
+            );
+            self.cleanup(false);
         }
     }
 }
