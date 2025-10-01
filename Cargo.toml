@@ -12,7 +12,7 @@ default = []
 gif = ["image/gif"]
 mp4_openh264 = ["dep:mp4", "dep:openh264"]
 mp4_ffmpeg_cli = ["dep:tempdir"]
-mp4_ffmpeg_cli_pipe = ["dep:tempdir"]
+mp4_ffmpeg_cli_pipe = []
 
 [dependencies]
 bevy = { version = "0.16.0", default-features = false, features = [
