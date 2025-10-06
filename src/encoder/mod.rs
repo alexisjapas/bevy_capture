@@ -11,6 +11,9 @@ pub mod mp4_openh264;
 #[cfg(feature = "mp4_ffmpeg_cli")]
 pub mod mp4_ffmpeg_cli;
 
+#[cfg(feature = "mp4_ffmpeg_cli_pipe")]
+pub mod mp4_ffmpeg_cli_pipe;
+
 use bevy::prelude::*;
 
 /// An error that occurred during encoding.

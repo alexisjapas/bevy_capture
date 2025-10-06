@@ -12,6 +12,7 @@ default = []
 gif = ["image/gif"]
 mp4_openh264 = ["dep:mp4", "dep:openh264"]
 mp4_ffmpeg_cli = ["dep:tempdir"]
+mp4_ffmpeg_cli_pipe = ["dep:wait-timeout"]
 
 [dependencies]
 bevy = { version = "0.16.0", default-features = false, features = [
@@ -32,6 +33,9 @@ openh264 = { version = "0.6.2", optional = true }
 # mp4_ffmpeg_cli
 tempdir = { version = "0.3.7", optional = true }
 
+# mp4_ffmpeg_cli_pipe
+wait-timeout = { version = "0.2.1", optional = true }
+
 [dev-dependencies]
 bevy = "0.16.0"
 
@@ -40,4 +44,4 @@ all-features = true
 
 [[example]]
 name = "simple"
-required-features = ["gif", "mp4_openh264", "mp4_ffmpeg_cli"]
+required-features = ["gif", "mp4_openh264", "mp4_ffmpeg_cli", "mp4_ffmpeg_cli_pipe"]
