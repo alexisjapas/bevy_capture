@@ -13,13 +13,13 @@ A Bevy plugin for capturing frames from a Bevy application. It comes with some b
 
 ## Built-in Encoders
 
-| Name                                                                  | Description                                                               | Required Features |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------- |
-| [`FramesEncoder`](encoder::frames::FramesEncoder)                     | Encodes frames into individual images.                                    |                   |
-| [`GifEncoder`](encoder::gif::GifEncoder)                              | Encodes frames into a gif.                                                | `gif`             |
-| [`Mp4Openh264Encoder`](encoder::mp4_openh264::Mp4Openh264Encoder)     | Encodes frames into an mp4 using openh264.                                | `mp4_openh264`    |
-| [`Mp4FfmpegCliEncoder`](encoder::mp4_ffmpeg_cli::Mp4FfmpegCliEncoder) | Encodes frames into an mp4 using the ffmpeg CLI (ffmpeg must be in PATH). | `mp4_ffmpeg_cli`  |
-| [`Mp4FfmpegCliPipeEncoder`](encoder::mp4_ffmpeg_cli_pipe::Mp4FfmpegCliPipeEncoder) | Encodes frames into an mp4 by streaming it directly to the ffmpeg CLI (ffmpeg must be in PATH). | `mp4_ffmpeg_cli_pipe`  |
+| Name                                                                               | Description                                                                                     | Required Features     |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------- |
+| [`FramesEncoder`](encoder::frames::FramesEncoder)                                  | Encodes frames into individual images.                                                          |                       |
+| [`GifEncoder`](encoder::gif::GifEncoder)                                           | Encodes frames into a gif.                                                                      | `gif`                 |
+| [`Mp4Openh264Encoder`](encoder::mp4_openh264::Mp4Openh264Encoder)                  | Encodes frames into an mp4 using openh264.                                                      | `mp4_openh264`        |
+| [`Mp4FfmpegCliEncoder`](encoder::mp4_ffmpeg_cli::Mp4FfmpegCliEncoder)              | Encodes frames into an mp4 using the ffmpeg CLI (ffmpeg must be in PATH).                       | `mp4_ffmpeg_cli`      |
+| [`Mp4FfmpegCliPipeEncoder`](encoder::mp4_ffmpeg_cli_pipe::Mp4FfmpegCliPipeEncoder) | Encodes frames into an mp4 by streaming it directly to the ffmpeg CLI (ffmpeg must be in PATH). | `mp4_ffmpeg_cli_pipe` |
 
 ## Usage
 
