@@ -73,11 +73,18 @@ fn setup(
 }
 
 fn update(
-    mut app_exit: EventWriter<AppExit>,
+    mut app_exit: MessageWriter<AppExit>,
     mut capture: Query<&mut Capture>,
     mut cubes: Query<&mut Transform, With<Cube>>,
     mut frame: Local<u32>,
+    mut waited: Local<bool>,
 ) {
+    // Wait one frame: https://github.com/bevyengine/bevy/issues/20756
+    if !*waited {
+        *waited = true;
+        return;
+    }
+
     let mut capture = capture.single_mut().unwrap();
     if !capture.is_capturing() {
         capture.start((
